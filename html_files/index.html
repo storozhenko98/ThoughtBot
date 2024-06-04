@@ -109,6 +109,7 @@
         <label for="audio_file">Audio File:</label>
         <input type="file" id="audio_file" name="audio_file" accept="audio/*"><br><br>
         <input type="button" value="Record Audio" onclick="startRecording()">
+        <input type="button" value="Stop Recording" onclick="stopRecording()">
         <input type="submit" value="Submit">
         <div class="recording-indicator" id="recordingIndicator">Recording...</div>
     </form>
@@ -137,7 +138,6 @@
                 });
 
                 mediaRecorder.addEventListener("stop", () => {
-                    document.getElementById('recordingIndicator').style.display = 'none';
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                     const audioFileInput = document.getElementById('audio_file');
                     const file = new File([audioBlob], "recording.wav", { type: "audio/wav" });
@@ -150,13 +150,16 @@
                     animatedStop.innerText = 'Recording stopped and file ready to be uploaded.';
                     document.querySelector('form').appendChild(animatedStop);
                 });
-
-                mediaRecorder.addEventListener("stop", () => {
-                    document.getElementById('recordingIndicator').style.display = 'none';
-                });
             } catch (error) {
                 console.error('Error accessing media devices.', error);
                 alert('Error accessing media devices: ' + error.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                document.getElementById('recordingIndicator').style.display = 'none';
             }
         }
 
