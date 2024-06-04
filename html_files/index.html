@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Query Submission</title>
+</head>
+<body>
+    <h1>Submit Your Audio Query</h1>
+    <form id="queryForm" action="/query" method="post" enctype="multipart/form-data">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="passphrase">Passphrase:</label>
+        <input type="password" id="passphrase" name="passphrase" required><br><br>
+        <label for="audio_file">Audio File:</label>
+        <input type="file" id="audio_file" name="audio_file" accept="audio/*"><br><br>
+        <input type="button" value="Record Audio" onclick="startRecording()">
+        <input type="submit" value="Submit">
+    </form>
+
+    <a href="/retrieve">Retrieve Your Query Results</a>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function startRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('getUserMedia is not supported in your browser.');
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                audioChunks = []; // Reset audio chunks
+
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioFileInput = document.getElementById('audio_file');
+                    const file = new File([audioBlob], "recording.wav", { type: "audio/wav" });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    audioFileInput.files = dataTransfer.files;
+                });
+
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                    alert("Recording stopped and file ready to be uploaded.");
+                }, 5000); // Record for 5 seconds
+            } catch (error) {
+                console.error('Error accessing media devices.', error);
+                alert('Error accessing media devices: ' + error.message);
+            }
+        }
+
+        document.getElementById('queryForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('passphrase', document.getElementById('passphrase').value);
+            formData.append('audio_file', document.getElementById('audio_file').files[0]);
+
+            const response = await fetch('/query', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    passphrase: formData.get('passphrase'),
+                    audio_file: await toBase64(formData.get('audio_file'))
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+    </script>
+</body>
+</html>

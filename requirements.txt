@@ -1,0 +1,4 @@
+pdfkit
+markdown
+openai
+fastapi

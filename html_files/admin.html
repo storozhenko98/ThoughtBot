@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+</head>
+<body>
+    <h1>Set OpenAI API Key</h1>
+    <form id="adminForm" action="/admin/set_key" method="post">
+        <label for="passphrase">Admin Passphrase:</label>
+        <input type="password" id="passphrase" name="passphrase" required><br><br>
+        <label for="api_key">OpenAI API Key:</label>
+        <input type="text" id="api_key" name="api_key" required><br><br>
+        <input type="submit" value="Set API Key">
+    </form>
+
+    <script>
+        document.getElementById('adminForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById('adminForm'));
+
+            const response = await fetch('/admin/set_key', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+    </script>
+</body>
+</html>

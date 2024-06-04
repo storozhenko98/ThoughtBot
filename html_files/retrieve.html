@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieve Query Results</title>
+</head>
+<body>
+    <h1>Retrieve Your Query Results</h1>
+    <form id="retrieveForm" action="/retrieve/by_username" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="passphrase">Passphrase:</label>
+        <input type="password" id="passphrase" name="passphrase" required><br><br>
+        <input type="submit" value="Retrieve">
+    </form>
+
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('retrieveForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const response = await fetch('/retrieve/by_username', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    passphrase: document.getElementById('passphrase').value
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (result.message) {
+                resultsDiv.innerHTML = `<p>${result.message}</p>`;
+            } else {
+                result.queries.forEach(query => {
+                    const queryDiv = document.createElement('div');
+                    queryDiv.innerHTML = `
+                        <p>Query ID: ${query[0]}</p>
+                        <p>Status: ${query[6]}</p>
+                        ${query[6] === 'completed' ? `<a href="/download/${query[0]}">Download PDF</a>` : ''}
+                        <hr>
+                    `;
+                    resultsDiv.appendChild(queryDiv);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
