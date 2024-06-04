@@ -14,11 +14,13 @@
             min-height: 100vh;
             background-color: #f0f0f0;
             margin: 0;
+            padding: 10px;
         }
 
         h1 {
             color: #333;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         form {
@@ -28,6 +30,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 400px;
             width: 100%;
+            box-sizing: border-box;
         }
 
         label {
@@ -38,14 +41,16 @@
 
         input[type="text"],
         input[type="password"] {
-            width: calc(100% - 22px);
+            width: 100%;
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            box-sizing: border-box;
         }
 
         input[type="submit"] {
+            width: 100%;
             background-color: #007bff;
             color: white;
             border: none;
@@ -53,7 +58,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            width: 100%;
+            margin-bottom: 10px;
         }
 
         input[type="submit"]:hover {
@@ -64,6 +69,7 @@
             margin-top: 20px;
             width: 100%;
             max-width: 400px;
+            box-sizing: border-box;
         }
 
         #results p {
@@ -92,9 +98,11 @@
     <h1>Retrieve Your Query Results</h1>
     <form id="retrieveForm" action="/retrieve/by_username" method="post">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <input type="text" id="username" name="username" required>
+        
         <label for="passphrase">Passphrase:</label>
-        <input type="password" id="passphrase" name="passphrase" required><br><br>
+        <input type="password" id="passphrase" name="passphrase" required>
+        
         <input type="submit" value="Retrieve">
     </form>
 

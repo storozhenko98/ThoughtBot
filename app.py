@@ -7,6 +7,7 @@ import os
 import io
 import pdfkit
 import markdown
+import base64
 
 # Init the DB #
 conn = sqlite3.connect("db.sqlite3")
@@ -37,6 +38,7 @@ html_files_path = "html_files/"
 
 ########## Speech to Text ##########
 def get_text_from_audio(audio_file, api_key):
+    audio_file = open(audio_file, "rb")
     client = OpenAI(api_key=api_key)
     transcription = client.audio.transcriptions.create(
         model="whisper-1",
@@ -67,7 +69,8 @@ def process_query(username, passphrase, audio_file):
     time_stamp = str(time.time())
     audio_file_path = temp_audio_location_dir + "_" + username + "_" + time_stamp + ".wav"
     with open(audio_file_path, "wb") as f:
-        f.write(audio_file)
+        audio_data = base64.b64decode(audio_file)
+        f.write(audio_data)
     # Get into DB 
     conn = sqlite3.connect("db.sqlite3")
     cursor = conn.cursor()
@@ -165,7 +168,7 @@ async def set_api_key(request: Request):
     form = await request.form()
     passphrase = form.get("passphrase")
     api_key = form.get("api_key")
-    if passphrase == "fidelio-kubrick":
+    if passphrase == "INSERT HERE":
         conn = sqlite3.connect("db.sqlite3")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO api_keys (key) VALUES (?)", (api_key,))
